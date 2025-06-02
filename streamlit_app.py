@@ -4,74 +4,49 @@ import librosa
 import librosa.display
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import tempfile
 
-st.set_page_config(page_title="Motor Fault Classifier")
-st.title("🔊 Motor Fault Classifier (weights-based)")
+# 🧠 Load trained model (make sure cnn_motor_fault.keras is in the same directory)
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model("cnn_motors_fault.keras")
 
-LABELS = ["off", "on", "cap", "out", "unb", "c75", "vnt"]
+model = load_model()
 
-# ✅ Rebuild model architecture (match training)
-def build_model():
-    input_layer = tf.keras.Input(shape=(40, 173, 1))
-    x = tf.keras.layers.Conv2D(32, (3, 3), activation='relu')(input_layer)
-    x = tf.keras.layers.MaxPooling2D((2, 2))(x)
-    x = tf.keras.layers.Conv2D(64, (3, 3), activation='relu')(x)
-    x = tf.keras.layers.MaxPooling2D((2, 2))(x)
-    x = tf.keras.layers.Flatten()(x)
-    x = tf.keras.layers.Dense(128, activation='relu')(x)
-    x = tf.keras.layers.Dropout(0.3)(x)
-    output = tf.keras.layers.Dense(len(LABELS), activation='softmax')(x)
-    model = tf.keras.Model(inputs=input_layer, outputs=output)
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    return model
+# 🏷️ Class label names (must match training order)
+label_names = ["off", "on", "cap", "out", "unb", "c25", "c75", "vnt"]
 
-# 📤 Upload CNN weights
-uploaded_model = st.file_uploader("Upload CNN Weights (.h5)", type=["h5"])
-cnn_model = None
-if uploaded_model:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".h5") as tmp:
-        tmp.write(uploaded_model.read())
-        model_path = tmp.name
+st.title("🔊 Motor Fault Classifier")
+st.write("Upload a WAV file to classify motor fault condition using a CNN model trained on MFCC features.")
 
-    try:
-        cnn_model = build_model()
-        cnn_model.load_weights(model_path)
-        st.success("✅ Weights loaded and model built successfully.")
-    except Exception as e:
-        st.error(f"❌ Failed to load weights: {e}")
+# 📤 File upload
+uploaded_file = st.file_uploader("Upload WAV file", type=["wav"])
+if uploaded_file:
+    st.audio(uploaded_file)
 
-# 📤 Upload audio for prediction
-if cnn_model:
-    uploaded_file = st.file_uploader("Upload a WAV file", type=["wav"])
-    if uploaded_file:
-        st.audio(uploaded_file)
+    # 🎧 Load and preprocess audio
+    y, sr = librosa.load(uploaded_file, sr=16000)
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
+    max_len = 173
+    if mfcc.shape[1] < max_len:
+        pad_width = max_len - mfcc.shape[1]
+        mfcc = np.pad(mfcc, ((0, 0), (0, pad_width)), mode='constant')
+    else:
+        mfcc = mfcc[:, :max_len]
 
-        # Load and preprocess
-        y, sr = librosa.load(uploaded_file, sr=16000)
-        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
-        if mfcc.shape[1] < 173:
-            pad = 173 - mfcc.shape[1]
-            mfcc = np.pad(mfcc, ((0, 0), (0, pad)), mode='constant')
-        else:
-            mfcc = mfcc[:, :173]
-        mfcc = mfcc[..., np.newaxis]
-        input_tensor = np.expand_dims(mfcc, axis=0)
+    # 🎛️ Display MFCC spectrogram
+    st.write("### Mel-frequency Cepstral Coefficients (MFCC)")
+    fig, ax = plt.subplots()
+    img = librosa.display.specshow(mfcc, sr=sr, x_axis='time', ax=ax)
+    fig.colorbar(img, ax=ax)
+    st.pyplot(fig)
 
-        # Visualize
-        st.write("### 🎛 Mel Spectrogram")
-        S = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128)
-        S_dB = librosa.power_to_db(S, ref=np.max)
-        fig, ax = plt.subplots()
-        img = librosa.display.specshow(S_dB, sr=sr, x_axis='time', y_axis='mel', ax=ax)
-        fig.colorbar(img, ax=ax, format='%+2.0f dB')
-        st.pyplot(fig)
+    # 🧠 Predict
+    mfcc_input = np.expand_dims(mfcc[..., np.newaxis], axis=0)  # (1, 40, 173, 1)
+    preds = model.predict(mfcc_input)
+    pred_idx = np.argmax(preds)
+    confidence = float(np.max(preds))
+    label = label_names[pred_idx] if pred_idx < len(label_names) else f"Class {pred_idx}"
 
-        # Predict
-        preds = cnn_model.predict(input_tensor)
-        pred_class = int(np.argmax(preds))
-        confidence = float(np.max(preds))
-        label = LABELS[pred_class] if pred_class < len(LABELS) else f"Class {pred_class}"
-
-        st.markdown(f"### 🧠 Predicted Class: `{label}`")
-        st.markdown(f"**Confidence:** `{confidence:.2f}`")
+    # 📝 Display result
+    st.write(f"### ✅ Predicted Class: `{label}`")
+    st.write(f"Confidence: `{confidence:.2f}`")
