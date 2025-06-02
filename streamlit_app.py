@@ -17,7 +17,7 @@ def load_model_from_gdrive():
     url = f"https://drive.google.com/uc?id={file_id}"
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        model_path = os.path.join(tmp_dir, "cnn_motor_fault.keras")
+        model_path = os.path.join(tmp_dir, "cnn_motor_faultt.keras")
         gdown.download(url, model_path, quiet=False)
         model = tf.keras.models.load_model(model_path)
     return model
