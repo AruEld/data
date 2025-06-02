@@ -1,9 +1,8 @@
 import streamlit as st
 import numpy as np
 import librosa
-import librosa.display
-import tensorflow as tf
 import matplotlib.pyplot as plt
+import tensorflow as tf
 import io
 
 # Load model
