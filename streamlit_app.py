@@ -4,10 +4,17 @@ import librosa
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import io
+import requests
+import tempfile
 
-# Load model
+url = "https://drive.google.com/file/d/1BbtgHJ08pjOwMPex2WBKgtxwDzZ89N1V/view?usp=sharing"
 
-cnn_model = tf.keras.models.load_model("cnn_motor_fault.h5")
+with tempfile.NamedTemporaryFile(suffix=".keras") as tmp:
+    r = requests.get(url)
+    tmp.write(r.content)
+    tmp.flush()
+    cnn_model = tf.keras.models.load_model(tmp.name)
+
 
 # File uploader
 uploaded_file = st.file_uploader("Upload WAV file", type=["wav"])
