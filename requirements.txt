@@ -1,9 +1,9 @@
+# ✅ Compatible with Streamlit Cloud
 tensorflow-cpu==2.10.1
 protobuf==3.19.6
 streamlit==1.19.0
-altair==4.2.2
 numpy
 matplotlib
-librosa
 scikit-learn
-
+librosa
+altair==4.2.2
