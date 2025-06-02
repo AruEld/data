@@ -14,15 +14,10 @@ uploaded_model = st.file_uploader("Upload CNN model (.h5)", type=["h5"])
 if uploaded_model:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".h5") as tmp:
         tmp.write(uploaded_model.read())
-        tmp_path = tmp.name
+        model_path = tmp.name
 
-    # ⛔ Bypass legacy incompatibility using compile=False
-    try:
-        cnn_model = tf.keras.models.load_model(tmp_path, compile=False)
-        st.success("✅ Model loaded successfully.")
-    except Exception as e:
-        st.error(f"❌ Failed to load model: {e}")
-        st.stop()
+    cnn_model = tf.keras.models.load_model(model_path, compile=False)
+
 
     # 📁 Upload .wav file
     uploaded_file = st.file_uploader("Upload a WAV file", type=["wav"])
