@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import requests
 import tempfile
-https://drive.google.com/file/d/1JmT-NseWZr0F9GBZlmrqMMerSNsMW4TX/view?usp=sharing
+
+# 🔁 Function to load model from Google Drive
 def load_model_from_gdrive(file_id):
-    url = f"https://drive.google.com/file/d/1JmT-NseWZr0F9GBZlmrqMMerSNsMW4TX'
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
     with tempfile.NamedTemporaryFile(suffix=".keras", delete=False) as tmp:
         response = requests.get(url)
         tmp.write(response.content)
@@ -16,9 +17,8 @@ def load_model_from_gdrive(file_id):
         model = tf.keras.models.load_model(tmp.name, compile=False)
     return model
 
-
 # 🔑 Replace with your actual Google Drive file ID
-FILE_ID = "YOUR_FILE_ID_HERE"  # 🔁 Paste the correct file ID
+FILE_ID = "1JmT-NseWZr0F9GBZlmrqMMerSNsMW4TX"  # 🔁 Paste the correct file ID
 cnn_model = load_model_from_gdrive(FILE_ID)
 
 # 🏷️ Class labels (update to match training)
