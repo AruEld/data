@@ -6,6 +6,7 @@ import tensorflow as tf
 import io
 
 # Load model
+
 cnn_model = tf.keras.models.load_model("cnn_motor_fault.keras")
 
 # File uploader
