@@ -1,6 +1,7 @@
 streamlit
 tensorflow==2.11.0
-librosa
-matplotlib
 numpy
+pandas
+matplotlib
 scikit-learn
+librosa
