@@ -8,14 +8,16 @@ import requests
 import tempfile
 import gdown
 
+@st.cache_resource
 def load_model_from_gdrive(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
     with tempfile.NamedTemporaryFile(suffix=".keras", delete=False) as tmp:
         gdown.download(url, tmp.name, quiet=False)
         model = tf.keras.models.load_model(tmp.name, compile=False)
     return model
-# 🔑 Replace with your actual Google Drive file ID
-FILE_ID = "1JmT-NseWZr0F9GBZlmrqMMerSNsMW4TX"  # 🔁 Paste the correct file ID
+
+# ✅ Replace this with your actual file ID
+FILE_ID = "1JmT-NseWZr0F9GBZlmrqMMerSNsMW4TX"
 cnn_model = load_model_from_gdrive(FILE_ID)
 
 # 🏷️ Class labels (update to match training)
