@@ -6,17 +6,14 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import requests
 import tempfile
+import gdown
 
-# 🔁 Function to load model from Google Drive
 def load_model_from_gdrive(file_id):
-    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    url = f"https://drive.google.com/uc?id={file_id}"
     with tempfile.NamedTemporaryFile(suffix=".keras", delete=False) as tmp:
-        response = requests.get(url)
-        tmp.write(response.content)
-        tmp.flush()
+        gdown.download(url, tmp.name, quiet=False)
         model = tf.keras.models.load_model(tmp.name, compile=False)
     return model
-
 # 🔑 Replace with your actual Google Drive file ID
 FILE_ID = "1JmT-NseWZr0F9GBZlmrqMMerSNsMW4TX"  # 🔁 Paste the correct file ID
 cnn_model = load_model_from_gdrive(FILE_ID)
