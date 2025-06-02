@@ -10,11 +10,10 @@ import gdown
 import os
 
 st.title("🔊 Motor Fault Classifier")
-
 # 🔁 Step 1: Download model from Google Drive using gdown
 @st.cache_resource
 def load_model_from_gdrive():
-    file_id = "1BbtgHJ08pjOwMPex2WBKgtxwDzZ89N1V"
+    file_id = "1kZK2r9c1AOxrUc_wmzsKVeKuTwU9rcDh"
     url = f"https://drive.google.com/uc?id={file_id}"
 
     with tempfile.TemporaryDirectory() as tmp_dir:
