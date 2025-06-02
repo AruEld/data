@@ -1,7 +1,7 @@
-streamlit
+streamlit==1.25.0
 tensorflow==2.11.0
 numpy
 pandas
-matplotlib
 scikit-learn
+matplotlib
 librosa
