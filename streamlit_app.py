@@ -6,7 +6,7 @@ import tensorflow as tf
 import io
 
 # Load model
-cnn_model = tf.keras.models.load_model("cnn_motor_fault.h5")
+cnn_model = tf.keras.models.load_model("cnn_motor_fault.keras")
 
 # File uploader
 uploaded_file = st.file_uploader("Upload WAV file", type=["wav"])
